@@ -3,7 +3,11 @@ from PIL import Image
 import os
 import io
 from typing import Tuple
+import requests
+
 def parquet2images():
+    if not os.path.isdir("./data"):
+        os.mkdir("./data")
 
     data_path = "./data/images"
     if not os.path.isdir(data_path):
@@ -61,4 +65,19 @@ def get_n_classes(labels: list) -> int:
         class_set.add(label)
         n_classes += 1
     return n_classes
+
+def download_file(url):
+    file = url.split("/")[-1].split("?")[0]
+    save_path = f"./data/{file}"
+
+    try:
+        resp = requests.get(url)
+        with open(save_path,"wb") as file:
+            file.write(resp.content)
+    except Exception as e:
+        print("Download Failed!\n",e)
+
+
+
+
 

@@ -1,6 +1,10 @@
 from alexnet import AlexNet
 from utils import get_files_and_labels, get_n_classes
+import requests
 def main():
+
+    
+
     lbl_file = "./data/labels.txt"
     files, labels = get_files_and_labels(lbl_file)
 
