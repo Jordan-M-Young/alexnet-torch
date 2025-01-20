@@ -1,16 +1,20 @@
+"""AlexNet class."""
+
 import torch
 
 
-
 class AlexNet(torch.nn.Module):
+    """AlexNet Class, extended from torch Module."""
+
     def __init__(self, n_classes=3):
+        """Initialize AlexNet Class."""
         super(AlexNet, self).__init__()
-        
-        self.c1 = torch.nn.Conv2d(in_channels=3, out_channels=96, kernel_size=(11,11),stride=4)
+
+        self.c1 = torch.nn.Conv2d(in_channels=3, out_channels=96, kernel_size=(11, 11), stride=4)
         self.re1 = torch.nn.ReLU()
-        self.lrn = torch.nn.LocalResponseNorm(5,0.0001,0.75,2)
+        self.lrn = torch.nn.LocalResponseNorm(5, 0.0001, 0.75, 2)
         self.mx_pool1 = torch.nn.MaxPool2d(kernel_size=3, stride=2)
-    
+
         self.c2 = torch.nn.Conv2d(96, 256, 5)
         self.mx_pool2 = torch.nn.MaxPool2d(kernel_size=3, stride=2)
         self.re2 = torch.nn.ReLU()
@@ -26,20 +30,20 @@ class AlexNet(torch.nn.Module):
 
         self.mx_pool3 = torch.nn.MaxPool2d(kernel_size=3, stride=2)
 
-        self.fc1 = torch.nn.Linear(4096,4096)
+        self.fc1 = torch.nn.Linear(4096, 4096)
         self.re6 = torch.nn.ReLU()
 
-        self.fc2 = torch.nn.Linear(4096,4096)
+        self.fc2 = torch.nn.Linear(4096, 4096)
         self.re7 = torch.nn.ReLU()
 
-        self.fc3 = torch.nn.Linear(4096,n_classes)
+        self.fc3 = torch.nn.Linear(4096, n_classes)
         self.re8 = torch.nn.ReLU()
 
         self.soft = torch.nn.Softmax(dim=n_classes)
         pass
 
-
     def forward(self, x):
+        """Forward pass method."""
         x = self.c1(x)
         x = self.re1(x)
         x = self.lrn(x)
@@ -61,6 +65,5 @@ class AlexNet(torch.nn.Module):
         x = self.fc3(x)
         x = self.re8(x)
         x = self.soft(x)
-        
+
         return x
-        
