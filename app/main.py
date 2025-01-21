@@ -10,12 +10,14 @@ from app.data import ImageDataset, load_data
 
 def main():
     """Main training loop."""
+    # Model/Optimizer parameters as discussed in paper.
     BATCH_SIZE = 128
     TEST_FRACTION = 0.2
     INIT_LR = 0.01
     WEIGHT_DECAY = 0.0005
     EPOCHS = 10
     LR_REDUCE_FACTOR = 0.1
+    MOMENTUM = 0.9
 
     # load dataset.
     data = load_data()
@@ -36,8 +38,10 @@ def main():
 
     # initialize model, optimizer, and lr scheduler
     model = AlexNet(n_classes=n_classes)
-    optimizer = optim.Adam(model.parameters(), lr=INIT_LR, weight_decay=WEIGHT_DECAY)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, factor=LR_REDUCE_FACTOR, patience=3)
+
+    # you'll probably want to adjust this... Adam with a lower lr works much better lol
+    optimizer = optim.SGD(model.parameters(), lr=INIT_LR, momentum=MOMENTUM, weight_decay=WEIGHT_DECAY)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, factor=LR_REDUCE_FACTOR, patience=30)
 
     # run training/testing
     for epoch in range(EPOCHS):
@@ -49,7 +53,7 @@ def main():
             f" Epoch {epoch} Test Loss: ",
             ev_epoch_loss / len(test_dataset),
         )
-        scheduler.step(tr_epoch_loss)
+        scheduler.step(ev_epoch_loss)
 
 
 if __name__ == "__main__":
