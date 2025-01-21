@@ -58,7 +58,7 @@ class AlexNet(torch.nn.Module):
         x = self.c5(x)
         x = self.re5(x)
         x = self.mx_pool3(x)
-        x = x.view(-1, 256 * 2 * 2)  
+        x = x.view(-1, 256 * 2 * 2)
         x = self.fc1(x)
         x = self.re6(x)
         x = self.dp1(x)

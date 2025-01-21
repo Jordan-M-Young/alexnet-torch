@@ -83,8 +83,3 @@ def download_file(url):
             file.write(resp.content)
     except Exception as e:
         print("Download Failed!\n", e)
-
-
-def load_imgs():
-    """Load images into numpy arrays."""
-    pass
