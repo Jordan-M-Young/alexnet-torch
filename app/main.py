@@ -1,69 +1,55 @@
 """Run AlexNet Training."""
 
-import numpy as np
-from PIL import Image
-from torch import optim, tensor
-from torch.nn.functional import cross_entropy
+from torch import optim
 from torch.utils.data import DataLoader, random_split
+from training import eval, train
 
 from app.alexnet import AlexNet
-from app.data import ImageDataset
-from app.utils import get_files_and_labels, get_n_classes
+from app.data import ImageDataset, load_data
 
 
 def main():
     """Main training loop."""
-    lbl_file = "./data/labels.txt"
-    files, labels = get_files_and_labels(lbl_file)
-    n_classes = get_n_classes(labels)
+    BATCH_SIZE = 128
+    TEST_FRACTION = 0.2
+    INIT_LR = 0.01
+    WEIGHT_DECAY = 0.0005
+    EPOCHS = 10
+    LR_REDUCE_FACTOR = 0.1
 
-    file_dir = "./data/images"
-    images = []
-    for _idx, file in enumerate(files):
-        file_path = f"{file_dir}/{file}"
-        image = Image.open(file_path).convert("RGB")
-        image.load()
-        data = np.asarray(image, dtype="float32")
-        data = np.moveaxis(data, -1, 0)
-        images.append(data)
-    print(f"Loaded {len(files)} samples")
-    print("Array Shape", data.shape)
-
+    # load dataset.
+    data = load_data()
+    images = data["images"]
+    labels = data["labels"]
+    n_classes = data["n_classes"]
     dataset = ImageDataset(images=images, labels=labels, n_classes=n_classes)
 
-    batch_size = 128
-
-    test_frac = 0.2
+    # split dataset
     size = len(dataset)
-    train_size = int((1 - test_frac) * size)
+    train_size = int((1 - TEST_FRACTION) * size)
     test_size = size - train_size
-
     train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size)
-    _test_dataloader = DataLoader(test_dataset, batch_size=batch_size)
+    # create dataloaders
+    train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE)
+    test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
 
+    # initialize model, optimizer, and lr scheduler
     model = AlexNet(n_classes=n_classes)
-    optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=0.0005)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, factor=0.1)
-    for epoch in range(10):
-        model.train()
-        epoch_loss = 0
-        for _, batch in enumerate(train_dataloader):
-            inputs, labels = batch
-            output = model(inputs)
-            labels = np.array(labels)
-            labels = labels.reshape(len(inputs), n_classes)
-            labels = tensor(labels)
+    optimizer = optim.Adam(model.parameters(), lr=INIT_LR, weight_decay=WEIGHT_DECAY)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer, factor=LR_REDUCE_FACTOR, patience=3)
 
-            loss = cross_entropy(output, tensor(labels))
-            loss_val = loss.detach().item()
-            epoch_loss += loss_val
-            loss.backward()
-            optimizer.step()
-
-        print(f"Epoch {epoch} Loss: ", epoch_loss / len(train_dataloader))
-        scheduler.step(epoch_loss)
+    # run training/testing
+    for epoch in range(EPOCHS):
+        tr_epoch_loss = train(train_dataloader, model, optimizer)
+        ev_epoch_loss = eval(test_dataloader, model)
+        print(
+            f"Epoch {epoch} Loss: ",
+            tr_epoch_loss / len(train_dataset),
+            f" Epoch {epoch} Test Loss: ",
+            ev_epoch_loss / len(test_dataset),
+        )
+        scheduler.step(tr_epoch_loss)
 
 
 if __name__ == "__main__":

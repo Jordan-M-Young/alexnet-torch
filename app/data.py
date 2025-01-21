@@ -1,5 +1,8 @@
 """Classes and functions for data handling."""
 
+import numpy as np
+import utils as ut
+from PIL import Image
 from torch.utils.data import Dataset
 
 
@@ -37,12 +40,22 @@ def encode_labels(n_labels, labels) -> list[list]:
     return encoded_labels
 
 
-# def get_dataloaders(dataset: Dataset, test_size=0.2) -> Tuple(DataLoader, DataLoader):
-#     size = len(dataset)
-#     train_size = int((1-test_size) * size)
-#     test_size = size - train_size
+def load_data() -> dict:
+    """Loads data, kindof a bad function in this state."""
+    lbl_file = "./data/labels.txt"
+    files, labels = ut.get_files_and_labels(lbl_file)
+    n_classes = ut.get_n_classes(labels)
 
-#     train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+    file_dir = "./data/images"
+    images = []
+    for _, file in enumerate(files):
+        file_path = f"{file_dir}/{file}"
+        image = Image.open(file_path).convert("RGB")
+        image.load()
+        data = np.asarray(image, dtype="float32")
+        data = np.moveaxis(data, -1, 0)
+        images.append(data)
+    print(f"Loaded {len(files)} samples")
+    print("Array Shape", data.shape)
 
-
-#     train_dataloader = DataLoader(train_dataset,bat)
+    return {"images": images, "labels": labels, "n_classes": n_classes}
