@@ -30,3 +30,14 @@ This will write the byte strings found in the downloaded parquet file to .jpg an
 ## Full Dataset
 
 The goal of this repo is really only to implement AlexNet in pytoch, if you want to train it on the full ImageNet Dataset, you'll need to write more functionality to pull/parse that data. If there's interest I could do this too.
+
+
+# Train AlexNet
+
+When you're satisfied with your data setup you can train an instance of AlexNet by running
+
+```
+poetry run train
+```
+
+This runs the `main` function found in `app/main.py`. Feel free to adjust parameters or make the script a bit more CLI friendly. 
