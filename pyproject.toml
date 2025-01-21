@@ -26,6 +26,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 mk-imgs = "scripts:load_data"
 download-sample = "scripts:download_sample_images"
+train = "scripts:run_train"
 
 
 [tool.ruff]

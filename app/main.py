@@ -2,10 +2,10 @@
 
 from torch import optim
 from torch.utils.data import DataLoader, random_split
-from training import eval, train
 
 from app.alexnet import AlexNet
 from app.data import ImageDataset, load_data
+from app.training import eval, train
 
 
 def main():

@@ -1,9 +1,10 @@
 """Classes and functions for data handling."""
 
 import numpy as np
-import utils as ut
 from PIL import Image
 from torch.utils.data import Dataset
+
+import app.utils as ut
 
 
 class ImageDataset(Dataset):
@@ -56,6 +57,6 @@ def load_data() -> dict:
         data = np.moveaxis(data, -1, 0)
         images.append(data)
     print(f"Loaded {len(files)} samples")
-    print("Array Shape", data.shape)
+    print("Image Dimensions", f"Height: {data.shape[1]} px, Width: {data.shape[2]} px, Channels: {data.shape[0]}")
 
     return {"images": images, "labels": labels, "n_classes": n_classes}
