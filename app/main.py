@@ -15,7 +15,7 @@ def main():
     TEST_FRACTION = 0.2
     INIT_LR = 0.01
     WEIGHT_DECAY = 0.0005
-    EPOCHS = 10
+    EPOCHS = 90
     LR_REDUCE_FACTOR = 0.1
     MOMENTUM = 0.9
 
